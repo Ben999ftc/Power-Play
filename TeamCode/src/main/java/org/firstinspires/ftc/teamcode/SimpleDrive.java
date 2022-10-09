@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @TeleOp
 public class SimpleDrive extends OpMode
 {
+    Detection Detect = new Detection();
     //Declare motors and variables//
 
 
@@ -110,63 +111,27 @@ public class SimpleDrive extends OpMode
         if (gamepad1.right_stick_x >= 0.1 && gamepad1.left_stick_y <= -0.1) {
             rightFrontPower = 0.5;  // was 0.2
             rightBackPower = 0.5;   // was 0.2
-        } else if (gamepad1.right_stick_x <= -0.1 && gamepad1.left_stick_y <= -0.1) {
-            leftFrontPower = 0.5;   //was 0.2
-            leftBackPower = 0.5;    //was 0.2
-        } else if (gamepad1.right_stick_x >= 0.1 && gamepad1.left_stick_y <= -0.1) {
             leftFrontPower = -0.5;  //was -0.3
             leftBackPower = -0.5;   //was -0.3
         } else if (gamepad1.right_stick_x <= -0.1 && gamepad1.left_stick_y <= -0.1) {
+            leftFrontPower = 0.5;   //was 0.2
+            leftBackPower = 0.5;    //was 0.2
             rightFrontPower = -0.5; //was -0.3
             rightBackPower = -0.5;  //was -0.3
-        } else {
-            rightFrontPower = rightFrontPower;
-            rightBackPower = rightBackPower;
-            leftFrontPower = leftFrontPower;
-            leftBackPower = leftBackPower;
+        }
+
+        if (Detect.gettag() == 1){
+            leftFrontPower = 1;
         }
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
         leftBackDrive.setPower(leftBackPower);
         rightBackDrive.setPower(rightBackPower);
-//        telemetry.addData("status", "loop 1");
-//        Rotator1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        Rotator2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        Slides.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//    if (gamepad2.a) {
-//        Rotator1.setPower(0.8);
-//        Rotator2.setPower(0.8);
-//    }
-//
-//    else if (gamepad2.b) {
-//        Rotator1.setPower(-0.8);
-//        Rotator2.setPower(-0.8);
-//    }
-//
-//    else {
-//        Rotator1.setPower(0);
-//        Rotator2.setPower(0);
-//    }
-//
-//    if (gamepad2.left_bumper){
-//        Slides.setPower(0.5);
-//    }
-//
-//    else if (gamepad2.right_bumper){
-//        Slides.setPower(-0.5);
-//    }
-//
-//    else {
-//        Slides.setPower(0);
-//    }
 
-
-//driving formula. calculates power to each wheel based on joystick position. don't touch
-
-
-
-
+//        if (gamepad2.a){
+//            motor.setpower(1);
+//        }
 
     }
     @Override
