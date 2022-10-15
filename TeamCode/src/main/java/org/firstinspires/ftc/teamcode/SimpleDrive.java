@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @TeleOp
 public class SimpleDrive extends OpMode
 {
-    Detection Detect = new Detection();
+    Lift lift = new Lift();
     //Declare motors and variables//
 
 
@@ -42,9 +42,8 @@ public class SimpleDrive extends OpMode
 
         //names on the config
 //
-//        Rotator1 = hardwareMap.get(DcMotor.class, "rotator1");
-//        Rotator2 = hardwareMap.get(DcMotor.class, "rotator2");
-//        Slides = hardwareMap.get(DcMotor.class, "slides");
+        lift.init(hardwareMap);
+
         leftFrontDrive = hardwareMap.get(DcMotor.class, "left_front");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back");
@@ -120,19 +119,25 @@ public class SimpleDrive extends OpMode
             rightBackPower = -0.5;  //was -0.3
         }
 
-        if (Detect.gettag() == 1){
-            leftFrontPower = 1;
-        }
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
         leftBackDrive.setPower(leftBackPower);
         rightBackDrive.setPower(rightBackPower);
 
-//        if (gamepad2.a){
-//            motor.setpower(1);
-//        }
+        if(gamepad2.right_bumper){
+            lift.setHeight(5, 0.5);
+        }
+        else if(gamepad2.left_bumper){
+            lift.setHeight(0, 0.5);
+        }
 
+        if(gamepad2.dpad_up){
+            lift.armAngle(-90, 0.3);
+        }
+        else if(gamepad2.dpad_down){
+            lift.armAngle(90, 0.3);
+        }
     }
     @Override
     public void stop() {
