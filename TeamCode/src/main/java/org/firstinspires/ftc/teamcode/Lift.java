@@ -13,18 +13,22 @@ public class Lift {
     double currentheight = 0;
     double currentangle = 0;
 
+
     public void init(HardwareMap hardwareMap){
 
         lift_left = hardwareMap.get(DcMotor.class, "left_lift");
         lift_right = hardwareMap.get(DcMotor.class, "right_lift");
         arm = hardwareMap.get(DcMotor.class, "arm");
 
+        lift_left.setTargetPosition(0);
+        lift_right.setTargetPosition(0);
+        arm.setTargetPosition(0);
         lift_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        lift_left.setDirection(DcMotorSimple.Direction.FORWARD);
-        lift_right.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift_left.setDirection(DcMotorSimple.Direction.REVERSE);
+        lift_right.setDirection(DcMotorSimple.Direction.FORWARD);
         arm.setDirection(DcMotorSimple.Direction.FORWARD);
 
         lift_left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -33,7 +37,7 @@ public class Lift {
     }
 
     public void setHeight(double height, double power){
-        double value = height * 25.4 / 112 * 537.7;
+        double value = height / 112 * 537.7;
         int target = (int)value;
         lift_left.setTargetPosition(target);
         lift_right.setTargetPosition(target);

@@ -79,14 +79,6 @@ public class SimpleDrive extends OpMode
         telemetry.addData("status", "Initialized");
     }
 
-    @Override
-    public void start() {
-//        telemetry.addData("status", "start");
-    }
-
-
-
-
 
     //Set variables//
     @Override
@@ -126,10 +118,10 @@ public class SimpleDrive extends OpMode
         rightBackDrive.setPower(rightBackPower);
 
         if(gamepad2.right_bumper){
-            lift.setHeight(5, 0.5);
+            lift.setHeight(470, 0.5);
         }
         else if(gamepad2.left_bumper){
-            lift.setHeight(0, 0.5);
+            lift.setHeight(470, 0.5);
         }
 
         if(gamepad2.dpad_up){
