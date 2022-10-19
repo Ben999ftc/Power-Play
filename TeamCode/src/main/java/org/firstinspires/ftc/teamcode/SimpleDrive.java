@@ -118,17 +118,17 @@ public class SimpleDrive extends OpMode
         rightBackDrive.setPower(rightBackPower);
 
         if(gamepad2.right_bumper){
-            lift.setHeight(470, 0.5);
+            lift.setHeight(10);
         }
         else if(gamepad2.left_bumper){
-            lift.setHeight(470, 0.5);
+            lift.setHeight(10);
         }
 
         if(gamepad2.dpad_up){
-            lift.armAngle(-90, 0.3);
+            lift.armAngle(-90);
         }
         else if(gamepad2.dpad_down){
-            lift.armAngle(90, 0.3);
+            lift.armAngle(90);
         }
     }
     @Override
