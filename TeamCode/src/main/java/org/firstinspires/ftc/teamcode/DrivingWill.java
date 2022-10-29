@@ -1,20 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
-import android.transition.Slide;
-
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @TeleOp
-public class SimpleDrive extends OpMode
+public class DrivingWill extends OpMode
 {
     Lift lift = new Lift();
     //Declare motors and variables//
@@ -22,12 +15,14 @@ public class SimpleDrive extends OpMode
 
     //Motors: 4 wheels, Duckydropper
     //Servos: none
-
+    private boolean isPressed = false;
+    private int height_count = 0;
 
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+    private Servo claw = null;
 //    private DcMotor Rotator1 = null;
 //    private DcMotor Rotator2 = null;
 //    private DcMotor Slides = null;
@@ -48,6 +43,7 @@ public class SimpleDrive extends OpMode
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back");
+        claw = hardwareMap.get(Servo.class, "claw");
 
 
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -117,20 +113,62 @@ public class SimpleDrive extends OpMode
         leftBackDrive.setPower(leftBackPower);
         rightBackDrive.setPower(rightBackPower);
 
-        if(gamepad2.right_bumper){
-            lift.setHeight(10);
+        if(gamepad2.right_bumper && !isPressed){
+            height_count++;
+            isPressed = true;
+
         }
-        else if(gamepad2.left_bumper){
-            lift.setHeight(10);
+        else if(gamepad2.left_bumper && !isPressed){
+            height_count--;
+            isPressed = true;
+        }
+        else{
+            isPressed = false;
+        }
+
+        if (height_count == 0){
+            lift.setHeight(0);
+        }
+        else if(height_count == 1){
+            lift.setHeight(165);
+        }
+        else if(height_count == 2){
+            lift.setHeight(430);
         }
 
         if(gamepad2.dpad_up){
-            lift.armAngle(-90);
+            lift.armAngle(160);
         }
         else if(gamepad2.dpad_down){
-            lift.armAngle(90);
+            lift.armAngle(0);
         }
+        else if(gamepad2.dpad_right){
+            lift.armAngle(220);
+        }
+        else if(gamepad2.dpad_left){
+            lift.armAngle(101);
+        }
+        else if(gamepad2.x){
+            lift.armAngle(5);
+        }
+
+        if (gamepad2.x){
+            claw.setPosition(1);
+        }
+        else if(lift.getAngle() > 160 && !gamepad2.x) {
+            claw.setPosition(0.5);
+        }
+        else {
+            claw.setPosition(0);
+        }
+
+        telemetry.addData("Arm Position:", lift.getAngle());
+        telemetry.update();
+
+        //}
+        //telemetry.addData("Arm position", lift.getAngle());
     }
+
     @Override
     public void stop() {
         leftFrontDrive.setPower(0);
