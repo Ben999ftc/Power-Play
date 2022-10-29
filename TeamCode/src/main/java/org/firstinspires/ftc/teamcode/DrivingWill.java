@@ -148,15 +148,13 @@ public class DrivingWill extends OpMode
         else if(gamepad2.dpad_left){
             lift.armAngle(101);
         }
-        else if(gamepad2.x){
-            lift.armAngle(5);
-        }
+
 
         if (gamepad2.x){
-            claw.setPosition(1);
+            claw.setPosition(0.4);
         }
         else if(lift.getAngle() > 160 && !gamepad2.x) {
-            claw.setPosition(0.5);
+            claw.setPosition(0.2);
         }
         else {
             claw.setPosition(0);

@@ -27,15 +27,15 @@ import java.util.List;
  */
 @Config
 public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer {
-    public static double TICKS_PER_REV = 360;
+    public static double TICKS_PER_REV = 1440;
     public static double WHEEL_RADIUS = 0.75; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 12; // in; distance between the left and right wheels
+    public static double LATERAL_DISTANCE = 11.54; // in; distance between the left and right wheels
     public static double FORWARD_OFFSET = 5; // in; offset of the lateral wheel
 
-    public static double X_MULTIPLIER = 1;
-    public static double Y_MULTIPLIER = 1;
+    public static double X_MULTIPLIER = 0.9845944703;
+    public static double Y_MULTIPLIER = 0.9901339676;
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
 
@@ -49,6 +49,8 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "left_front"));
         rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "right_back"));
         frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "left_back"));
+
+        leftEncoder.setDirection(Encoder.Direction.REVERSE);
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
     }
@@ -65,6 +67,16 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
                 encoderTicksToInches(rightEncoder.getCurrentPosition()) * X_MULTIPLIER,
                 encoderTicksToInches(frontEncoder.getCurrentPosition()) * Y_MULTIPLIER
         );
+    }
+
+    public double getLeftOdometer() {
+        return leftEncoder.getCurrentPosition();
+    }
+    public double getRightOdometer() {
+        return rightEncoder.getCurrentPosition();
+    }
+    public double getBackOdometer() {
+        return frontEncoder.getCurrentPosition();
     }
 
     @NonNull
