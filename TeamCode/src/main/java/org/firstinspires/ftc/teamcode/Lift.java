@@ -23,6 +23,7 @@ public class Lift {
         arm.setTargetPosition(0);
         lift_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         lift_left.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -32,6 +33,8 @@ public class Lift {
         lift_left.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         lift_right.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
     }
 
     public void setHeight(double height){

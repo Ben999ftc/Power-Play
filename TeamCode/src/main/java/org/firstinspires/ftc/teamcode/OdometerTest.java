@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+@Disabled
 @TeleOp
 public class OdometerTest extends LinearOpMode {
     private TrajectoryFollower follower;

@@ -65,6 +65,8 @@ public class DrivingWill extends OpMode
 
 
 
+
+
 //Set the Direction for the motors to turn when the robot moves forward//
 
 //        Rotator1.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -107,13 +109,33 @@ public class DrivingWill extends OpMode
             rightBackPower = -0.5;  //was -0.3
         }
 
+        if(gamepad1.right_bumper){
+            leftFrontPower /= 2;
+            leftBackPower /= 2;
+            rightFrontPower /= 2;
+            rightBackPower /= 2;
+        }
+
+        if (gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0){
+            leftFrontPower /= 2;
+            leftBackPower /= 2;
+            rightFrontPower /= 2;
+            rightBackPower /= 2;
+        }
+
 
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
         leftBackDrive.setPower(leftBackPower);
         rightBackDrive.setPower(rightBackPower);
 
-        if(gamepad2.right_bumper && !isPressed){
+        if(height_count > 2){
+            height_count = 2;
+        }
+        else if(height_count < 0){
+            height_count = 0;
+        }
+        else if(gamepad2.right_bumper && !isPressed){
             height_count++;
             isPressed = true;
 
@@ -126,14 +148,14 @@ public class DrivingWill extends OpMode
             isPressed = false;
         }
 
-        if (height_count == 0){
-            lift.setHeight(0);
-        }
-        else if(height_count == 1){
+        if(gamepad2.right_trigger == 1.0){
             lift.setHeight(165);
         }
-        else if(height_count == 2){
-            lift.setHeight(430);
+        else if(gamepad2.right_bumper){
+            lift.setHeight(380);
+        }
+        else if(gamepad2.left_bumper){
+            lift.setHeight(0);
         }
 
         if(gamepad2.dpad_up){
@@ -143,21 +165,21 @@ public class DrivingWill extends OpMode
             lift.armAngle(0);
         }
         else if(gamepad2.dpad_right){
-            lift.armAngle(220);
+            lift.armAngle(200);
         }
         else if(gamepad2.dpad_left){
             lift.armAngle(101);
         }
 
 
-        if (gamepad2.x){
-            claw.setPosition(0.4);
-        }
-        else if(lift.getAngle() > 160 && !gamepad2.x) {
+        if (lift.getAngle() > 160 && gamepad2.x){
             claw.setPosition(0.2);
         }
-        else {
+        else if(gamepad2.x) {
             claw.setPosition(0);
+        }
+        else {
+            claw.setPosition(0.4);
         }
 
         telemetry.addData("Arm Position:", lift.getAngle());

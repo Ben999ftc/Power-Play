@@ -32,12 +32,16 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
     public static double LATERAL_DISTANCE = 11.54; // in; distance between the left and right wheels
-    public static double FORWARD_OFFSET = 5; // in; offset of the lateral wheel
+    public static double FORWARD_OFFSET = -5; // in; offset of the lateral wheel
 
     public static double X_MULTIPLIER = 0.9845944703;
     public static double Y_MULTIPLIER = 0.9901339676;
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
+
+    private double leftStart;
+    private double rightStart;
+    private double frontStart;
 
     public StandardTrackingWheelLocalizer(HardwareMap hardwareMap) {
         super(Arrays.asList(
@@ -50,7 +54,12 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "right_back"));
         frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "left_back"));
 
+        leftStart = leftEncoder.getCurrentPosition();
+        rightStart = rightEncoder.getCurrentPosition();
+        frontStart = frontEncoder.getCurrentPosition();
+
         leftEncoder.setDirection(Encoder.Direction.REVERSE);
+        frontEncoder.setDirection(Encoder.Direction.REVERSE);
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
     }
@@ -70,13 +79,13 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     }
 
     public double getLeftOdometer() {
-        return leftEncoder.getCurrentPosition();
+        return DriveConstants.encoderTicksToInches(leftEncoder.getCurrentPosition() - leftStart);
     }
     public double getRightOdometer() {
-        return rightEncoder.getCurrentPosition();
+        return DriveConstants.encoderTicksToInches(rightEncoder.getCurrentPosition() - rightStart);
     }
     public double getBackOdometer() {
-        return frontEncoder.getCurrentPosition();
+        return (DriveConstants.encoderTicksToInches(frontEncoder.getCurrentPosition() - frontStart));
     }
 
     @NonNull
