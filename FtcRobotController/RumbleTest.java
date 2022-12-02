@@ -3,12 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 @TeleOp
-public class DrivingWill extends OpMode
+public class RumbleTest extends OpMode
 {
     Lift lift = new Lift();
     //Declare motors and variables//
@@ -24,8 +23,6 @@ public class DrivingWill extends OpMode
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
     private Servo claw = null;
-    private DigitalChannel button = null;
-    private Servo vee = null;
 //    private DcMotor Rotator1 = null;
 //    private DcMotor Rotator2 = null;
 //    private DcMotor Slides = null;
@@ -47,8 +44,6 @@ public class DrivingWill extends OpMode
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back");
         claw = hardwareMap.get(Servo.class, "claw");
-        button = hardwareMap.get(DigitalChannel.class, "button");
-        vee = hardwareMap.get(Servo.class, "vee");
 
 
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -170,7 +165,7 @@ public class DrivingWill extends OpMode
             lift.armAngle(0);
         }
         else if(gamepad2.dpad_right){
-            lift.armAngle(180);
+            lift.armAngle(200);
         }
         else if(gamepad2.dpad_left){
             lift.armAngle(101);
@@ -178,9 +173,9 @@ public class DrivingWill extends OpMode
 
 
         if (lift.getAngle() > 160 && gamepad2.x){
-            claw.setPosition(0.1);
+            claw.setPosition(0.2);
         }
-        if(gamepad2.x) {
+        else if(gamepad2.x) {
             claw.setPosition(0);
         }
         else {
@@ -189,22 +184,6 @@ public class DrivingWill extends OpMode
 
         telemetry.addData("Arm Position:", lift.getAngle());
         telemetry.update();
-
-        if (gamepad1.right_trigger > 0.1){
-            vee.setPosition(1);
-        }
-        else{
-            vee.setPosition(0.6);
-        }
-
-        if(button.getState() == true){
-            gamepad1.rumble(100);
-            gamepad2.rumble(100);
-        }
-        else{
-            gamepad1.stopRumble();
-            gamepad2.stopRumble();
-        }
 
         //}
         //telemetry.addData("Arm position", lift.getAngle());

@@ -38,24 +38,24 @@ public class Lift {
     }
 
     public void setHeight(double height){
-        double ticks_per_mm = (537.7 / 112);
+        double ticks_per_mm = (384.5 / 112);
         double value = height * ticks_per_mm;
         int target = (int)value;
         lift_left.setTargetPosition(target);
         lift_right.setTargetPosition(target);
-        lift_left.setVelocity(2795);
-        lift_right.setVelocity(2795);
+        lift_left.setVelocity(2785);
+        lift_right.setVelocity(2785);
     }
     public void armAngle(double angle){
-        double ticks_per_degree = ((537.7 * 1.625) / 360);
+        double ticks_per_degree = (2786.2 / 360);
         double  value = (angle * ticks_per_degree);
         int target = (int)value;
         arm.setTargetPosition(target);
-        arm.setVelocity(300);
+        arm.setVelocity(2000);
 
     }
     public double getAngle(){
-        return (arm.getCurrentPosition() / (537.7 / 360) / 1.625);
+        return (arm.getCurrentPosition() / (2786.2 / 360));
     }
 
 }
