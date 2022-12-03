@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -26,9 +27,7 @@ public class DrivingWill extends OpMode
     private Servo claw = null;
     private DigitalChannel button = null;
     private Servo vee = null;
-//    private DcMotor Rotator1 = null;
-//    private DcMotor Rotator2 = null;
-//    private DcMotor Slides = null;
+    private RevBlinkinLedDriver lights = null;
 
 
 
@@ -49,6 +48,7 @@ public class DrivingWill extends OpMode
         claw = hardwareMap.get(Servo.class, "claw");
         button = hardwareMap.get(DigitalChannel.class, "button");
         vee = hardwareMap.get(Servo.class, "vee");
+        lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
 
 
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -170,7 +170,7 @@ public class DrivingWill extends OpMode
             lift.armAngle(0);
         }
         else if(gamepad2.dpad_right){
-            lift.armAngle(180);
+            lift.armAngle(190);
         }
         else if(gamepad2.dpad_left){
             lift.armAngle(101);
@@ -178,13 +178,13 @@ public class DrivingWill extends OpMode
 
 
         if (lift.getAngle() > 160 && gamepad2.x){
+            claw.setPosition(0.25);
+        }
+        else if(gamepad2.x) {
             claw.setPosition(0.1);
         }
-        if(gamepad2.x) {
-            claw.setPosition(0);
-        }
         else {
-            claw.setPosition(0.4);
+            claw.setPosition(0.5);
         }
 
         telemetry.addData("Arm Position:", lift.getAngle());
@@ -200,10 +200,12 @@ public class DrivingWill extends OpMode
         if(button.getState() == true){
             gamepad1.rumble(100);
             gamepad2.rumble(100);
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
         }
         else{
             gamepad1.stopRumble();
             gamepad2.stopRumble();
+            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
         }
 
         //}
