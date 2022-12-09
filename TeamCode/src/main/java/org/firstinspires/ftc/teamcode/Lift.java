@@ -58,4 +58,6 @@ public class Lift {
         return (arm.getCurrentPosition() / (2786.2 / 360));
     }
 
+    public double getHeight(){return lift_left.getCurrentPosition() / (384.5/112);}
+
 }
