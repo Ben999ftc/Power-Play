@@ -19,6 +19,7 @@ public class DrivingWill extends OpMode
     //Servos: none
     private boolean isPressed = false;
     private int height_count = 0;
+    private int pPos = 0;
 
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
@@ -133,7 +134,7 @@ public class DrivingWill extends OpMode
         rightFrontDrive.setPower(rightFrontPower);
         leftBackDrive.setPower(leftBackPower);
         rightBackDrive.setPower(rightBackPower);
-
+/*
         if(height_count > 2){
             height_count = 2;
         }
@@ -152,7 +153,7 @@ public class DrivingWill extends OpMode
         else{
             isPressed = false;
         }
-
+*/
         if(gamepad2.right_trigger == 1.0){
             lift.setHeight(165);
         }
@@ -161,6 +162,18 @@ public class DrivingWill extends OpMode
         }
         else if(gamepad2.left_bumper){
             lift.setHeight(0);
+        }
+        else if (gamepad2.y) {
+            lift.setHeight(150);
+        }
+        else if (gamepad2.b) {
+            lift.setHeight(115);
+        }
+        else if (gamepad2.a) {
+            lift.setHeight(80);
+        }
+        else if (gamepad2.left_trigger > 0.8){
+            lift.setHeight(45);
         }
 
         if(gamepad2.dpad_up){
@@ -176,11 +189,11 @@ public class DrivingWill extends OpMode
             lift.armAngle(101);
         }
 
-
+    //Claw Code: Opens with GP2 X and opens less when past vertical position
         if (lift.getAngle() > 160 && gamepad2.x){
             claw.setPosition(0.25);
         }
-        else if(gamepad2.x) {
+        else if(lift.getAngle() < 160 && gamepad2.x) {
             claw.setPosition(0.1);
         }
         else {
