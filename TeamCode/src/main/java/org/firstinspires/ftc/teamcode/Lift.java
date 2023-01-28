@@ -3,20 +3,40 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.TouchSensor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 public class Lift {
     private DcMotorEx lift_left;
     private DcMotorEx lift_right;
-    private DcMotorEx arm;
+    public DcMotorEx arm;
+    double lastError = 0;
+    public TouchSensor magnet;
+    ElapsedTime timer = new ElapsedTime();
 
+
+    private static void setTimeout(Runnable runnable, int delay){
+        new Thread(() -> {
+            try {
+                Thread.sleep(delay);
+                runnable.run();
+            }
+            catch (Exception e){
+                System.err.println(e);
+            }
+        }).start();
+    }
 
     public void init(HardwareMap hardwareMap){
 
         lift_left = hardwareMap.get(DcMotorEx.class, "left_lift");
         lift_right = hardwareMap.get(DcMotorEx.class, "right_lift");
         arm = hardwareMap.get(DcMotorEx.class, "arm");
+        magnet = hardwareMap.get(TouchSensor.class, "magnet");
+
 
         lift_left.setTargetPosition(0);
         lift_right.setTargetPosition(0);
@@ -52,12 +72,58 @@ public class Lift {
         int target = (int)value;
         arm.setTargetPosition(target);
         arm.setVelocity(2000);
+    }
+    public void backArm(){
+        armAngle(250);
+    }
+    public void stopArm(){
+        arm.setVelocity(0);
+    }
+    public void stopIfPressed() {
+        if (magnet.isPressed()) {
+            stopArm();
+        } else {
+            setTimeout(() -> this.stopIfPressed(), 25);
+        }
+    }
+    public void backArmSensor() {
+        armAngle(250);
+        setTimeout(() -> stopIfPressed(), 25);
+    }
+    public void resetArm(){
+        if(getAngle() >= 180){
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            double value = (2786.2 / 360) * 190 * -1;
+            int target = (int)value;
+            arm.setTargetPosition(target);
+        }
+        else {
+            arm.setTargetPosition(0);
+        }
+        arm.setVelocity(2000);
+    }
+    public void PIDarm(double angle){
+        double ticksPerDegree = (2786.2 / 360);
+        double reference = angle * ticksPerDegree;
 
+        double Kp = 0.0008;
+        double Ki = 0;
+        double Kd = 0;
+
+        double error = reference - arm.getCurrentPosition();
+        double integral = error * timer.seconds();
+        double derivative = (error - lastError) / timer.seconds();
+        lastError = error;
+
+        arm.setPower((error * Kp) + (integral * Ki) + (derivative * Kd));
     }
     public double getAngle(){
         return (arm.getCurrentPosition() / (2786.2 / 360));
     }
 
     public double getHeight(){return lift_left.getCurrentPosition() / (384.5/112);}
+
+    public boolean getState(){return magnet.isPressed();}
 
 }

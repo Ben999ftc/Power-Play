@@ -5,8 +5,12 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @TeleOp
 public class DrivingWill extends OpMode
@@ -29,6 +33,7 @@ public class DrivingWill extends OpMode
     private DigitalChannel button = null;
     private Servo vee = null;
     private RevBlinkinLedDriver lights = null;
+
 
 
 
@@ -103,17 +108,17 @@ public class DrivingWill extends OpMode
 
 
         // not locking the wheels while turning
-        if (gamepad1.right_stick_x >= 0.1 && gamepad1.left_stick_y <= -0.1) {
-            rightFrontPower = 0.5;  // was 0.2
-            rightBackPower = 0.5;   // was 0.2
-            leftFrontPower = -0.5;  //was -0.3
-            leftBackPower = -0.5;   //was -0.3
-        } else if (gamepad1.right_stick_x <= -0.1 && gamepad1.left_stick_y <= -0.1) {
-            leftFrontPower = 0.5;   //was 0.2
-            leftBackPower = 0.5;    //was 0.2
-            rightFrontPower = -0.5; //was -0.3
-            rightBackPower = -0.5;  //was -0.3
-        }
+//        if (gamepad1.right_stick_x >= 0.1 && gamepad1.left_stick_y <= -0.1) {
+//            rightFrontPower = 0.5;  // was 0.2
+//            rightBackPower = 0.5;   // was 0.2
+//            leftFrontPower = -0.5;  //was -0.3
+//            leftBackPower = -0.5;   //was -0.3
+//        } else if (gamepad1.right_stick_x <= -0.1 && gamepad1.left_stick_y <= -0.1) {
+//            leftFrontPower = 0.5;   //was 0.2
+//            leftBackPower = 0.5;    //was 0.2
+//            rightFrontPower = -0.5; //was -0.3
+//            rightBackPower = -0.5;  //was -0.3
+//        }
 
         if(gamepad1.right_bumper){
             leftFrontPower /= 2;
@@ -122,39 +127,12 @@ public class DrivingWill extends OpMode
             rightBackPower /= 2;
         }
 
-        if (gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0){
-            leftFrontPower /= 2;
-            leftBackPower /= 2;
-            rightFrontPower /= 2;
-            rightBackPower /= 2;
-        }
-
-
         leftFrontDrive.setPower(leftFrontPower);
         rightFrontDrive.setPower(rightFrontPower);
         leftBackDrive.setPower(leftBackPower);
         rightBackDrive.setPower(rightBackPower);
-/*
-        if(height_count > 2){
-            height_count = 2;
-        }
-        else if(height_count < 0){
-            height_count = 0;
-        }
-        else if(gamepad2.right_bumper && !isPressed){
-            height_count++;
-            isPressed = true;
 
-        }
-        else if(gamepad2.left_bumper && !isPressed){
-            height_count--;
-            isPressed = true;
-        }
-        else{
-            isPressed = false;
-        }
-*/
-        if(gamepad2.right_trigger == 1.0){
+        if(gamepad2.right_trigger >= 0.5){
             lift.setHeight(165);
         }
         else if(gamepad2.right_bumper){
@@ -164,15 +142,15 @@ public class DrivingWill extends OpMode
             lift.setHeight(0);
         }
         else if (gamepad2.y) {
-            lift.setHeight(150);
+            lift.setHeight(140);
         }
         else if (gamepad2.b) {
-            lift.setHeight(115);
+            lift.setHeight(95);
         }
         else if (gamepad2.a) {
             lift.setHeight(80);
         }
-        else if (gamepad2.left_trigger > 0.8){
+        else if (gamepad2.left_trigger > 0.5){
             lift.setHeight(45);
         }
 
@@ -182,28 +160,36 @@ public class DrivingWill extends OpMode
         else if(gamepad2.dpad_down){
             lift.armAngle(0);
         }
-        else if(gamepad2.dpad_right){
-            lift.armAngle(190);
-        }
         else if(gamepad2.dpad_left){
             lift.armAngle(101);
         }
+        else if(gamepad2.dpad_right){
+            lift.backArmSensor();
+        } else {
+            lift.stopArm();
+        }
 
     //Claw Code: Opens with GP2 X and opens less when past vertical position
-        if (lift.getAngle() > 160 && gamepad2.x){
-            claw.setPosition(0.25);
+    // BIGGER CLOSES MORE*********************
+        if(lift.getAngle() >= 100){
+            if(gamepad2.x){
+                claw.setPosition(0.45);
+            }
+            else{
+                claw.setPosition(0.7);
+            }
         }
-        else if(lift.getAngle() < 160 && gamepad2.x) {
-            claw.setPosition(0.1);
-        }
-        else {
-            claw.setPosition(0.5);
+        else{
+            if(gamepad2.x){
+                claw.setPosition(0.1);
+            }
+            else{
+                claw.setPosition(0.7);
+            }
         }
 
-        telemetry.addData("Arm Position:", lift.getAngle());
-        telemetry.update();
 
-        if (gamepad1.right_trigger > 0.1){
+        if (gamepad1.left_trigger > 0.1){
             vee.setPosition(1);
         }
         else{
@@ -221,8 +207,10 @@ public class DrivingWill extends OpMode
             lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
         }
 
-        //}
-        //telemetry.addData("Arm position", lift.getAngle());
+        telemetry.addData("Activated", lift.getState());
+        telemetry.addData("Slide Height", lift.getHeight());
+        telemetry.update();
+
     }
 
     @Override
