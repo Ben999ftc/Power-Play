@@ -70,106 +70,114 @@ public class RightAuto extends LinearOpMode {
 
         telemetry.setMsTransmissionInterval(50);
 
-        Pose2d startPose = new Pose2d(-41, 63, Math.toRadians(270));
+        Pose2d startPose = new Pose2d(-40, 63, Math.toRadians(270));
         telemetry.addData( "Passed", "1");
         telemetry.update();
         int position = 2;
         robot.setPoseEstimate(startPose);
         TrajectorySequence preload = robot.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(() -> {
-                    robot.claw.setPosition(0.7);
+                    robot.claw.setPosition(1);
                     lift.backArmSensor();
+                    robot.vee.setPosition(1);
                 })
                 .splineToConstantHeading(new Vector2d(-36, 50), Math.toRadians(270))
-                .splineToConstantHeading(new Vector2d(-36, -6), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-36, 6), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-36, 12), Math.toRadians(90))
                 .addTemporalMarker(() -> {
                     lift.setHeight(390);
                 })
-                .splineToConstantHeading(new Vector2d(-36, -2), Math.toRadians(90),
-                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL*0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.5))
+                .turn(Math.toRadians(-135))
+//                .splineToLinearHeading(new Pose2d(-36, 12, Math.toRadians(135)), Math.toRadians(315))
+//                .splineToConstantHeading(new Vector2d(-36, -2), Math.toRadians(90),
+//                        SampleMecanumDrive.getVelocityConstraint(DriveConstants.MAX_VEL*0.5, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+//                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL*0.5))
+//                .turn(Math.toRadians(-90))
+//                .back(7)
+                .lineToConstantHeading(new Vector2d(-30, 4))
                 .addTemporalMarker(() -> {
-                    robot.vee.setPosition(1);
-                })
-                .turn(Math.toRadians(-90))
-                .back(7)
-                .addTemporalMarker(() -> {
-                    robot.claw.setPosition(0.5);
+                    robot.claw.setPosition(0.65);
                 })
                 .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
+                    robot.claw.setPosition(1);
                     lift.armAngle(0);
                 })
                 .forward(6)
-                .lineToConstantHeading(new Vector2d(-36, 11.5))
+//                .lineToConstantHeading(new Vector2d(-36, 11.5))
                 .addTemporalMarker(() -> {
-                    lift.setHeight(140);
                     lift.armAngle(0);
-                    robot.vee.setPosition(0.6);
-                    robot.claw.setPosition(0.1);
+                    robot.claw.setPosition(0.4);
+                    lift.slidesensor();
                 })
                 .build();
         telemetry.addData( "Passed", "2");
         telemetry.update();
         TrajectorySequence cycle = robot.trajectorySequenceBuilder(preload.end())
-                .lineToConstantHeading(new Vector2d(-63, 10.5))
+                .splineToLinearHeading(new Pose2d(-45, 13, Math.toRadians(180)), Math.toRadians(180))
                 .addTemporalMarker(() -> {
-                    robot.claw.setPosition(0.7);
+                    lift.setHeight(140);
+                })
+                .splineToConstantHeading(new Vector2d(-65, 13), Math.toRadians(180))
+                .addTemporalMarker(() -> {
+                    robot.claw.setPosition(1);
                 })
                 .waitSeconds(0.25)
                 .addTemporalMarker(() -> {
                     lift.setHeight(390);
-                    robot.vee.setPosition(1);
                 })
                 .waitSeconds(0.5)
-                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> {
+                .UNSTABLE_addTemporalMarkerOffset(1, () -> {
                     lift.backArmSensor();
                 })
+                .splineToConstantHeading(new Vector2d(-45, 13), Math.toRadians(0))
                 .splineToLinearHeading(new Pose2d(-30, 4, Math.toRadians(135)), Math.toRadians(315))
                 .addTemporalMarker(() -> {
-                    robot.claw.setPosition(0.5);
+                    robot.claw.setPosition(0.65);
                 })
                 .waitSeconds(0.25)
                 .addTemporalMarker(() -> {
+                    robot.claw.setPosition(1);
                     lift.armAngle(0);
                 })
                 .forward(6)
                 .addTemporalMarker(() -> {
-                    robot.vee.setPosition(0.6);
+                    lift.slidesensor();
                 })
                 .build();
         telemetry.addData( "Passed", "3");
         telemetry.update();
         TrajectorySequence cycle2 = robot.trajectorySequenceBuilder(cycle.end())
-                .splineToLinearHeading(new Pose2d(-40, 10.5, Math.toRadians(180)), Math.toRadians(180))
+                .splineToLinearHeading(new Pose2d(-45, 13, Math.toRadians(180)), Math.toRadians(180))
                 .addTemporalMarker(() -> {
                     lift.setHeight(95);
                     robot.claw.setPosition(0.1);
                 })
-                .lineToConstantHeading(new Vector2d(-63, 11))
+                .splineToConstantHeading(new Vector2d(-65, 13), Math.toRadians(180))
                 .addTemporalMarker(() -> {
-                    robot.claw.setPosition(0.6);
-                })
-                .waitSeconds(0.25)
-                .addTemporalMarker(() -> {
-                    lift.setHeight(390);
-                    robot.vee.setPosition(1);
+                    robot.claw.setPosition(1);
                 })
                 .waitSeconds(0.5)
-                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> {
+                .addTemporalMarker(() -> {
+                    lift.setHeight(390);
+                })
+                .waitSeconds(0.5)
+                .UNSTABLE_addTemporalMarkerOffset(1, () -> {
                     lift.backArmSensor();
                 })
+                .splineToConstantHeading(new Vector2d(-45, 13), Math.toRadians(0))
                 .splineToLinearHeading(new Pose2d(-30, 4, Math.toRadians(135)), Math.toRadians(315))
                 .addTemporalMarker(() -> {
-                    robot.claw.setPosition(0.5);
+                    robot.claw.setPosition(0.65);
                 })
                 .waitSeconds(0.25)
                 .addTemporalMarker(() -> {
+                    robot.claw.setPosition(1);
                     lift.armAngle(0);
                 })
                 .forward(6)
                 .addTemporalMarker(() -> {
-                    robot.vee.setPosition(0.6);
+                    lift.slidesensor();
                 })
                 .build();
         telemetry.addData( "Passed", "4");
@@ -186,9 +194,9 @@ public class RightAuto extends LinearOpMode {
         telemetry.addData( "Passed", "5");
         telemetry.update();
         TrajectorySequence parkleft = robot.trajectorySequenceBuilder(cycle2.end())
-                .splineToLinearHeading(new Pose2d(-12, 12, Math.toRadians(180)), Math.toRadians(0))
+                .splineToLinearHeading(new Pose2d(-12, 12, Math.toRadians(180)), Math.toRadians(180))
                 .addDisplacementMarker(() -> {
-                    lift.setHeight(0);
+                    lift.slidesensor();
                     robot.vee.setPosition(0.6);
                     lift.armAngle(0);
                 })
@@ -198,7 +206,8 @@ public class RightAuto extends LinearOpMode {
         telemetry.update();
         TrajectorySequence middle = robot.trajectorySequenceBuilder(cycle2.end())
                 .addTemporalMarker(() -> {
-                    lift.setHeight(0);
+                    lift.slidesensor();
+                    robot.vee.setPosition(0.6);
                 })
                 .splineToLinearHeading(new Pose2d(-36, 12, Math.toRadians(180)), Math.toRadians(45))
                 .build();

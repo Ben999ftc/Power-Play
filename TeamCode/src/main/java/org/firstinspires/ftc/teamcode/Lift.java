@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -15,6 +16,8 @@ public class Lift {
     public DcMotorEx arm;
     double lastError = 0;
     public TouchSensor magnet;
+    public TouchSensor slide_stop;
+    public Servo claw;
     ElapsedTime timer = new ElapsedTime();
 
 
@@ -36,11 +39,15 @@ public class Lift {
         lift_right = hardwareMap.get(DcMotorEx.class, "right_lift");
         arm = hardwareMap.get(DcMotorEx.class, "arm");
         magnet = hardwareMap.get(TouchSensor.class, "magnet");
+        slide_stop = hardwareMap.get(TouchSensor.class, "slide_stop");
+        claw = hardwareMap.get(Servo.class, "claw");
 
 
         lift_left.setTargetPosition(0);
         lift_right.setTargetPosition(0);
         arm.setTargetPosition(0);
+        lift_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        lift_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         lift_left.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         lift_right.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -79,6 +86,10 @@ public class Lift {
     public void stopArm(){
         arm.setVelocity(0);
     }
+    public void stopslide(){
+        lift_left.setVelocity(0);
+        lift_right.setVelocity(0);
+    }
     public void stopIfPressed() {
         if (magnet.isPressed()) {
             stopArm();
@@ -86,9 +97,21 @@ public class Lift {
             setTimeout(() -> this.stopIfPressed(), 25);
         }
     }
+    public void resetSlides() {
+        if (slide_stop.isPressed()){
+            stopslide();
+        }
+        else {
+            setTimeout(() -> this.resetSlides(), 20);
+        }
+    }
     public void backArmSensor() {
-        armAngle(250);
+        pControl();
         setTimeout(() -> stopIfPressed(), 25);
+    }
+    public void slidesensor() {
+        setHeight(0);
+        setTimeout(() -> resetSlides(), 20);
     }
     public void resetArm(){
         if(getAngle() >= 180){
@@ -118,11 +141,29 @@ public class Lift {
 
         arm.setPower((error * Kp) + (integral * Ki) + (derivative * Kd));
     }
+    public void pControl(){
+        armAngle(250);
+        double ticksPerDegree = (2786.2/360);
+        double proportion = (250 - (arm.getCurrentPosition() / ticksPerDegree)) / 250;
+        double velocity = 2786.2 * proportion;
+        arm.setVelocity(velocity);
+    }
+    public void openClaw(){
+        if (getAngle() >= 100) {
+            claw.setPosition(0.82);
+        } else {
+            claw.setPosition(0.65);
+        }
+    }
+    public void closeClaw(){
+        claw.setPosition(0.95);
+    }
     public double getAngle(){
         return (arm.getCurrentPosition() / (2786.2 / 360));
     }
 
     public double getHeight(){return lift_left.getCurrentPosition() / (384.5/112);}
+    public double getRightHeight(){return lift_right.getCurrentPosition() / (384.5/112);}
 
     public boolean getState(){return magnet.isPressed();}
 

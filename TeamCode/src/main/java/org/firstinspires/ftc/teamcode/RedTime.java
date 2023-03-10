@@ -169,20 +169,20 @@ public class RedTime extends LinearOpMode
 
         /* Actually do something useful */
         if(tagOfInterest == null || tagOfInterest.id == one){
-            robot.drive(1500, 0.4, robot.STRAFELEFT);
-            robot.drive(1200, 0.4, robot.FORWARD);
+            robot.drive(2000, 0.4, robot.STRAFELEFT);
+            robot.drive(1500, 0.4, robot.FORWARD);
             stop();
         }
         else if (tagOfInterest.id == two){
             robot.drive(1500, 0.4, robot.STRAFELEFT);
-            robot.drive(1300, 0.4, robot.STRAFERIGHT);
-            robot.drive(1200, 0.4, robot.FORWARD);
+            robot.drive(1000, 0.4, robot.STRAFERIGHT);
+            robot.drive(1500, 0.4, robot.FORWARD);
             stop();
         }
         else if (tagOfInterest.id == three){
             robot.drive(1500, 0.4, robot.STRAFELEFT);
             robot.drive(2600, 0.4, robot.STRAFERIGHT);
-            robot.drive(1200, 0.4, robot.FORWARD);
+            robot.drive(1500, 0.4, robot.FORWARD);
             stop();
         }
 

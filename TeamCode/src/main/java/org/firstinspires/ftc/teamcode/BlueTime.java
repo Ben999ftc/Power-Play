@@ -169,20 +169,20 @@ public class BlueTime extends LinearOpMode
 
         /* Actually do something useful */
         if(tagOfInterest == null || tagOfInterest.id == one){
-            robot.drive(500, 0.4, robot.STRAFERIGHT);
-            robot.drive(2000, 0.4, robot.STRAFELEFT);
-            robot.drive(1200, 0.4, robot.FORWARD);
+            robot.drive(800, 0.4, robot.STRAFERIGHT);
+            robot.drive(2800, 0.4, robot.STRAFELEFT);
+            robot.drive(1500, 0.4, robot.FORWARD);
             stop();
         }
         else if (tagOfInterest.id == two){
-            robot.drive(500, 0.4, robot.STRAFERIGHT);
-            robot.drive(500, 0.4, robot.STRAFELEFT);
-            robot.drive(1200, 0.4, robot.FORWARD);
+            robot.drive(800, 0.4, robot.STRAFERIGHT);
+            robot.drive(1000, 0.4, robot.STRAFELEFT);
+            robot.drive(1500, 0.4, robot.FORWARD);
             stop();
         }
         else{
-            robot.drive(1100, 0.4, robot.STRAFERIGHT);
-            robot.drive(1200, 0.4, robot.FORWARD);
+            robot.drive(1500, 0.4, robot.STRAFERIGHT);
+            robot.drive(1500, 0.4, robot.FORWARD);
             stop();
         }
 

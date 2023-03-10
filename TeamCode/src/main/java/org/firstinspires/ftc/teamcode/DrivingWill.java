@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
@@ -18,26 +19,16 @@ public class DrivingWill extends OpMode
     Lift lift = new Lift();
     //Declare motors and variables//
 
-
-    //Motors: 4 wheels, Duckydropper
-    //Servos: none
     private boolean isPressed = false;
-    private int height_count = 0;
-    private int pPos = 0;
+    private boolean cone = false;
+    private boolean stack = false;
 
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
-    private Servo claw = null;
-    private DigitalChannel button = null;
     private Servo vee = null;
-    private RevBlinkinLedDriver lights = null;
-
-
-
-
-    final double INTAKE_SPIN_SPEED = 1.0;
+    private ColorSensor colour = null;
 
     @Override
     public void init() {
@@ -51,10 +42,9 @@ public class DrivingWill extends OpMode
         rightFrontDrive = hardwareMap.get(DcMotor.class, "right_front");
         leftBackDrive = hardwareMap.get(DcMotor.class, "left_back");
         rightBackDrive = hardwareMap.get(DcMotor.class, "right_back");
-        claw = hardwareMap.get(Servo.class, "claw");
-        button = hardwareMap.get(DigitalChannel.class, "button");
         vee = hardwareMap.get(Servo.class, "vee");
-        lights = hardwareMap.get(RevBlinkinLedDriver.class, "lights");
+        colour = hardwareMap.get(ColorSensor.class, "colour");
+
 
 
         leftFrontDrive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -71,19 +61,6 @@ public class DrivingWill extends OpMode
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-
-
-
-
-
-
-//Set the Direction for the motors to turn when the robot moves forward//
-
-//        Rotator1.setDirection(DcMotorSimple.Direction.FORWARD);
-//        Rotator2.setDirection(DcMotorSimple.Direction.FORWARD);
-//        Slides.setDirection(DcMotorSimple.Direction.FORWARD);
-
 
         telemetry.addData("status", "Initialized");
     }
@@ -106,20 +83,6 @@ public class DrivingWill extends OpMode
         leftBackPower = Range.clip(drive + turn - strafe, -1, 1);
         rightBackPower = Range.clip(drive - turn + strafe, -1, 1);
 
-
-        // not locking the wheels while turning
-//        if (gamepad1.right_stick_x >= 0.1 && gamepad1.left_stick_y <= -0.1) {
-//            rightFrontPower = 0.5;  // was 0.2
-//            rightBackPower = 0.5;   // was 0.2
-//            leftFrontPower = -0.5;  //was -0.3
-//            leftBackPower = -0.5;   //was -0.3
-//        } else if (gamepad1.right_stick_x <= -0.1 && gamepad1.left_stick_y <= -0.1) {
-//            leftFrontPower = 0.5;   //was 0.2
-//            leftBackPower = 0.5;    //was 0.2
-//            rightFrontPower = -0.5; //was -0.3
-//            rightBackPower = -0.5;  //was -0.3
-//        }
-
         if(gamepad1.right_bumper){
             leftFrontPower /= 2;
             leftBackPower /= 2;
@@ -139,7 +102,12 @@ public class DrivingWill extends OpMode
             lift.setHeight(380);
         }
         else if(gamepad2.left_bumper){
-            lift.setHeight(0);
+            if(lift.slide_stop.isPressed()){
+                lift.stopslide();
+            }
+            else {
+                lift.setHeight(0);
+            }
         }
         else if (gamepad2.y) {
             lift.setHeight(140);
@@ -164,27 +132,54 @@ public class DrivingWill extends OpMode
             lift.armAngle(101);
         }
         else if(gamepad2.dpad_right){
-            lift.backArmSensor();
+            if (lift.magnet.isPressed()){
+                lift.stopArm();
+            }
+            else {
+
+                lift.pControl();
+            }
         } else {
             lift.stopArm();
         }
 
-    //Claw Code: Opens with GP2 X and opens less when past vertical position
-    // BIGGER CLOSES MORE*********************
-        if(lift.getAngle() >= 100){
-            if(gamepad2.x){
-                claw.setPosition(0.45);
-            }
-            else{
-                claw.setPosition(0.7);
+        if(gamepad2.left_stick_button){
+            if(!isPressed){
+                if (!stack){
+                    stack = true;
+                }
+                else {
+                    stack = false;
+                }
+                isPressed = true;
             }
         }
-        else{
-            if(gamepad2.x){
-                claw.setPosition(0.1);
+        else {
+            isPressed = false;
+        }
+
+    //Claw Code: Opens with GP2 X and opens less when past vertical position
+    // BIGGER CLOSES MORE*********************
+        if (!stack) {
+            if (gamepad2.x) {
+                lift.openClaw();
+            } else {
+                lift.closeClaw();
             }
-            else{
-                claw.setPosition(0.7);
+        }
+        else {
+            if (cone == true) {
+                if (gamepad2.x) {
+                    lift.openClaw();
+                } else {
+                    lift.closeClaw();
+                }
+            } else {
+                if (gamepad2.x) {
+                    lift.closeClaw();
+                } else {
+                    lift.openClaw();
+                }
             }
         }
 
@@ -196,19 +191,20 @@ public class DrivingWill extends OpMode
             vee.setPosition(0.6);
         }
 
-        if(button.getState() == true){
-            gamepad1.rumble(100);
-            gamepad2.rumble(100);
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.GREEN);
+        if((colour.red() >= colour.blue() + 20 && colour.red() >= colour.blue() +20) || (colour.blue() >= colour.red() + 20 && colour.blue() >= colour.green() + 20)){
+            cone = true;
         }
         else{
-            gamepad1.stopRumble();
-            gamepad2.stopRumble();
-            lights.setPattern(RevBlinkinLedDriver.BlinkinPattern.BLUE);
+            cone = false;
         }
 
         telemetry.addData("Activated", lift.getState());
-        telemetry.addData("Slide Height", lift.getHeight());
+        telemetry.addData("Left Height", lift.getHeight());
+        telemetry.addData("Right Height", lift.getRightHeight());
+        telemetry.addData("Arm Angle", lift.getAngle());
+        telemetry.addData("Red", colour.red());
+        telemetry.addData("Blue", colour.blue());
+        telemetry.addData("Green", colour.green());
         telemetry.update();
 
     }
