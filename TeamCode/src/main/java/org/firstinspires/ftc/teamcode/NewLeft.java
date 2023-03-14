@@ -41,6 +41,8 @@ public class NewLeft extends LinearOpMode {
 
     AprilTagDetection tagOfInterest = null;
 
+    boolean intake = true;
+
 
 
     @Override
@@ -70,7 +72,7 @@ public class NewLeft extends LinearOpMode {
 
         telemetry.setMsTransmissionInterval(50);
 
-        Pose2d startPose = new Pose2d(31.5, 63, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(31.5, 60, Math.toRadians(90));
         int position = 2;
         robot.setPoseEstimate(startPose);
         telemetry.addData( "Passed", "1");
@@ -78,14 +80,29 @@ public class NewLeft extends LinearOpMode {
 
         TrajectorySequence cones = robot.trajectorySequenceBuilder(startPose)
                 .lineToConstantHeading(new Vector2d(36, 50))
+                .addTemporalMarker(() -> {
+                    intake = false;
+                })
                 .splineToConstantHeading(new Vector2d(36, 25), Math.toRadians(270))
                 .splineToSplineHeading(new Pose2d(27, 4.3, Math.toRadians(45)), Math.toRadians(225))
+                .addTemporalMarker(() -> {
+                    lift.openClaw();
+                })
                 .waitSeconds(0.2)
+                .addTemporalMarker(() -> {
+                    intake = true;
+                })
                 .splineToSplineHeading(new Pose2d(40, 11.5, Math.toRadians(0)), Math.toRadians(0))
                 .splineToConstantHeading(new Vector2d(63, 11.5), Math.toRadians(0))
                 .waitSeconds(0.2)
+                .addTemporalMarker(() -> {
+                    intake = false;
+                })
                 .lineToConstantHeading(new Vector2d(40, 11.5))
                 .splineToSplineHeading(new Pose2d(27, 4.3, Math.toRadians(45)), Math.toRadians(225))
+                .addTemporalMarker(() -> {
+                    lift.openClaw();
+                })
                 .build();
 
         /*
@@ -138,6 +155,27 @@ public class NewLeft extends LinearOpMode {
         /* Actually do something useful */
         if(tagOfInterest != null){
             position = tagOfInterest.id;
+        }
+        robot.vee.setPosition(1);
+        robot.followTrajectorySequenceAsync(cones);
+
+        while(opModeIsActive() && !isStopRequested()){
+            if(intake){
+                lift.armAngle(0);
+                if (lift.detectCone()){
+                    lift.closeClaw();
+                    lift.setHeight(125);
+                }
+                else {
+                    lift.setHeight(0);
+                    lift.openClaw();
+                }
+            }
+            else{
+                lift.setHeight(390);
+                lift.backArmSensor();
+            }
+            robot.update();
         }
     }
 

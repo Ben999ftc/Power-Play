@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -18,6 +19,7 @@ public class Lift {
     public TouchSensor magnet;
     public TouchSensor slide_stop;
     public Servo claw;
+    public ColorSensor colour;
     ElapsedTime timer = new ElapsedTime();
 
 
@@ -41,6 +43,7 @@ public class Lift {
         magnet = hardwareMap.get(TouchSensor.class, "magnet");
         slide_stop = hardwareMap.get(TouchSensor.class, "slide_stop");
         claw = hardwareMap.get(Servo.class, "claw");
+        colour = hardwareMap.get(ColorSensor.class, "colour");
 
 
         lift_left.setTargetPosition(0);
@@ -112,6 +115,17 @@ public class Lift {
     public void slidesensor() {
         setHeight(0);
         setTimeout(() -> resetSlides(), 20);
+    }
+    public boolean detectCone(){
+        if (colour.red() + 20 > colour.blue() && colour.red() + 20 > colour.green()){
+            return true;
+        }
+        else if (colour.blue() + 20 > colour.red() && colour.blue() + 20 > colour.green()){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
     public void resetArm(){
         if(getAngle() >= 180){
