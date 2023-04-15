@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
+@Disabled
 @TeleOp
 public class LimitSwitchTest extends OpMode{
 

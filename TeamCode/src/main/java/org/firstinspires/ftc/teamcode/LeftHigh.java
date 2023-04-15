@@ -3,11 +3,11 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -16,8 +16,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
+@Disabled
 @Autonomous
-public class NewLeft extends LinearOpMode {
+public class LeftHigh extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagPipeline aprilTagDetectionPipeline;
 
@@ -38,6 +39,9 @@ public class NewLeft extends LinearOpMode {
     int one = 1;
     int two = 2;
     int three = 3;
+
+    int stack_height = 4;
+    int[] heights = {0, 45, 80, 95, 140};
 
     AprilTagDetection tagOfInterest = null;
 
@@ -72,37 +76,69 @@ public class NewLeft extends LinearOpMode {
 
         telemetry.setMsTransmissionInterval(50);
 
-        Pose2d startPose = new Pose2d(31.5, 60, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(31.1, 61.6, Math.toRadians(90));
+        Pose2d dropPose = new Pose2d(31.8, 3.7, Math.toRadians(45));
         int position = 2;
         robot.setPoseEstimate(startPose);
         telemetry.addData( "Passed", "1");
         telemetry.update();
 
-        TrajectorySequence cones = robot.trajectorySequenceBuilder(startPose)
+        TrajectorySequence preload = robot.trajectorySequenceBuilder(startPose)
+                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> {
+                    lift.backArmSensor();
+                    lift.setHeight(390);
+                })
                 .lineToConstantHeading(new Vector2d(36, 50))
-                .addTemporalMarker(() -> {
-                    intake = false;
-                })
                 .splineToConstantHeading(new Vector2d(36, 25), Math.toRadians(270))
-                .splineToSplineHeading(new Pose2d(27, 4.3, Math.toRadians(45)), Math.toRadians(225))
+                .splineToSplineHeading(dropPose, Math.toRadians(225))
                 .addTemporalMarker(() -> {
                     lift.openClaw();
+                    lift.armAngle(0);
                 })
                 .waitSeconds(0.2)
+                .build();
+        TrajectorySequence cycle = robot.trajectorySequenceBuilder(preload.end())
+                .splineToSplineHeading(new Pose2d(60, 9.6, Math.toRadians(0)), Math.toRadians(0))
+                .splineToConstantHeading(new Vector2d(66, 9.6), Math.toRadians(0))
                 .addTemporalMarker(() -> {
-                    intake = true;
+                    lift.closeClaw();
                 })
-                .splineToSplineHeading(new Pose2d(40, 11.5, Math.toRadians(0)), Math.toRadians(0))
-                .splineToConstantHeading(new Vector2d(63, 11.5), Math.toRadians(0))
-                .waitSeconds(0.2)
+                .waitSeconds(0.1)
                 .addTemporalMarker(() -> {
-                    intake = false;
+                    lift.setHeight(390);
                 })
-                .lineToConstantHeading(new Vector2d(40, 11.5))
-                .splineToSplineHeading(new Pose2d(27, 4.3, Math.toRadians(45)), Math.toRadians(225))
+                .UNSTABLE_addTemporalMarkerOffset(0.5, () -> {
+                    lift.backArmSensor();
+                })
+                .lineToConstantHeading(new Vector2d(58, 11.5))
+                .splineToSplineHeading(dropPose, Math.toRadians(225))
                 .addTemporalMarker(() -> {
                     lift.openClaw();
+                    sleep(300);
+                    lift.armAngle(0);
                 })
+                .waitSeconds(0.2)
+                .build();
+        TrajectorySequence left = robot.trajectorySequenceBuilder(cycle.end())
+                .addTemporalMarker(() -> {
+                    robot.vee.setPosition(0.6);
+                    lift.setHeight(0);
+                })
+                .splineToLinearHeading(new Pose2d(60, 12, Math.toRadians(0)), Math.toRadians(0))
+                .build();
+        TrajectorySequence middle = robot.trajectorySequenceBuilder(cycle.end())
+                .addTemporalMarker(() -> {
+                    robot.vee.setPosition(0.6);
+                    lift.setHeight(0);
+                })
+                .splineToLinearHeading(new Pose2d(36, 24, Math.toRadians(0)), Math.toRadians(90))
+                .build();
+        TrajectorySequence right = robot.trajectorySequenceBuilder(cycle.end())
+                .addTemporalMarker(() -> {
+                    robot.vee.setPosition(0.6);
+                    lift.setHeight(0);
+                })
+                .splineToLinearHeading(new Pose2d(12, 12, Math.toRadians(0)), Math.toRadians(180))
                 .build();
 
         /*
@@ -157,26 +193,22 @@ public class NewLeft extends LinearOpMode {
             position = tagOfInterest.id;
         }
         robot.vee.setPosition(1);
-        robot.followTrajectorySequenceAsync(cones);
-
-        while(opModeIsActive() && !isStopRequested()){
-            if(intake){
-                lift.armAngle(0);
-                if (lift.detectCone()){
-                    lift.closeClaw();
-                    lift.setHeight(125);
-                }
-                else {
-                    lift.setHeight(0);
-                    lift.openClaw();
-                }
-            }
-            else{
-                lift.setHeight(390);
-                lift.backArmSensor();
-            }
-            robot.update();
+        robot.followTrajectorySequence(preload);
+        while (stack_height >= 1){
+            lift.setHeight(heights[stack_height]);
+            robot.followTrajectorySequence(cycle);
+            stack_height--;
         }
+        if (position == 1){
+            robot.followTrajectorySequence(left);
+        }
+        else if (position == 3){
+            robot.followTrajectorySequence(right);
+        }
+        else {
+            robot.followTrajectorySequence(middle);
+        }
+
     }
 
 }
