@@ -76,10 +76,10 @@ public class SimpleDrive extends OpMode
             rightBackPower /= 2;
         }
 
-        leftFrontDrive.setPower(leftFrontPower * 0.6);
-        rightFrontDrive.setPower(rightFrontPower * 0.6);
-        leftBackDrive.setPower(leftBackPower * 0.6);
-        rightBackDrive.setPower(rightBackPower * 0.6);
+        leftFrontDrive.setPower(leftFrontPower);
+        rightFrontDrive.setPower(rightFrontPower);
+        leftBackDrive.setPower(leftBackPower);
+        rightBackDrive.setPower(rightBackPower);
 
         //Claw Code: Opens with GP2 X and opens less when past vertical position
         // BIGGER CLOSES MORE*********************

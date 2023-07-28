@@ -192,7 +192,7 @@ public class LeftMid extends LinearOpMode {
                 .UNSTABLE_addTemporalMarkerOffset(0.5, () -> {
                     lift.setHeight(0);
                 })
-                .forward(6)
+                .forward(7.5)
                 .build();
 
         /*
@@ -200,7 +200,7 @@ public class LeftMid extends LinearOpMode {
          * This REPLACES waitForStart!
          */
         lift.init(hardwareMap);
-        lift.claw.setPosition(0.95);
+        lift.closeClaw();
         // robot.vee.setPosition(0.6);
         while (!isStarted() && !isStopRequested())
         {

@@ -81,7 +81,7 @@ public class Lift {
         double  value = (angle * ticks_per_degree);
         int target = (int)value;
         arm.setTargetPosition(target);
-        arm.setVelocity(2000);
+        arm.setVelocity(2786.2);
     }
     public void backArm(){
         armAngle(250);
@@ -109,7 +109,7 @@ public class Lift {
         }
     }
     public void backArmSensor() {
-        pControl();
+        armAngle(300);
         setTimeout(() -> stopIfPressed(), 25);
     }
     public void slidesensor() {
@@ -164,9 +164,9 @@ public class Lift {
     }
     public void openClaw(){
         if (getAngle() >= 100) {
-            claw.setPosition(0.82);
+            claw.setPosition(0.86);
         } else {
-            claw.setPosition(0.65);
+            claw.setPosition(0.78);
         }
     }
     public void closeClaw(){
